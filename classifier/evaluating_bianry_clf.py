@@ -2,7 +2,7 @@ from sklearn.datasets import fetch_mldata
 from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict
 from sklearn.linear_model import SGDClassifier
 from sklearn.base import BaseEstimator
-from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score, roc_curve, roc_auc_score
+from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score, roc_curve, roc_auc_score, precision_recall_curve
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -78,8 +78,15 @@ def f1_score_eval(y_train, y_pred):
     '''
     return f1_score(y_train, y_pred) 
 
-def adjust_threshold(clf):
-    pass
+def adjust_threshold(clf, X_train, y_train):
+    y_scores = cross_val_predict(clf, X_train, y_train, cv=3, method='decision_function')
+    precisions, recalls, thresholds = precision_recall_curve(y_train, y_scores)
+    plt.plot(thresholds, precisions[:-1], 'b--', label='Precision')
+    plt.plot(thresholds, recalls[:-1], 'g-', label='Recall')
+    plt.xlabel('Threshold')
+    plt.legend(loc='upper left')
+    plt.ylim([0, 1])
+    plt.show()
 
 def roc_eval_and_auc_eval(clf, X_train, y_train):
     '''
@@ -129,3 +136,5 @@ if __name__ == '__main__':
     roc_eval_and_auc_eval(clf, X_train, y_train)
     print("There's another tradeoff, the higher recall, the more fpr classifier produces")
 
+    print("THRESHOLD VS PRECISON/RECALL:")
+    adjust_threshold(clf, X_train, y_train)
