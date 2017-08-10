@@ -3,6 +3,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict
 from sklearn.multiclass import OneVsOneClassifier
 from sklearn.metrics import confusion_matrix
+from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
 import matplotlib
 from mpl_toolkits.axes_grid1 import AxesGrid
@@ -81,6 +82,17 @@ def plotDigits(mx):
         for j, image in enumerate(sub_image):
             axarr[i][j].imshow(image, cmap=matplotlib.cm.binary, interpolation='nearest')
 
+def multiLabel(X_train, y_train, mnist):
+    y_train_large = (y_train >= 7)
+    y_train_odd = (y_train % 2 == 1)
+    y_multilabel = np.c_[y_train_large, y_train_odd]
+    
+    knn_clf = KNeighborsClassifier()
+    knn_clf.fit(X_train, y_multilabel)
+    pred = knn_clf.predict([mnist['data'][3600]])
+    print('predicted: ',pred)
+    print('real target:', mnist['target'][3600])
+    print('0 is indeed not a large and not an odd number')
 
 
 
@@ -90,3 +102,4 @@ if __name__ == '__main__':
     useOVO(X_train, y_train, mnist)
     evaluate(clf, X_train, y_train)
     errorAnalysis(clf, X_train, y_train)
+    multiLabel(X_train, y_train, mnist)
